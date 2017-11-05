@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Canteen Online Project (COLP)</title>
+    <link rel="stylesheet" href="css/pure-min.css">
+    <link rel="stylesheet" href="css/grids-responsive-min.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <link rel="stylesheet" href="css/restaurant.css">
+</head>
+<body>
+
+<div class="pure-menu pure-menu-horizontal">
+    <a href="#" class="pure-menu-heading">COLP</a>
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item"><a href="index.html" class="pure-menu-link">主页</a></li>
+        <li class="pure-menu-item pure-menu-selected"><a href="restaurant.html" class="pure-menu-link">餐馆</a></li>
+        <li class="pure-menu-item"><a href="user.html" class="pure-menu-link">我的帐号</a></li>
+    </ul>
+</div>
+
+<div class="type-content container" style="display: none">
+    <h3 style="text-align: center">选择您要就餐的餐馆类型</h3>
+    <div class="restaurant-type-container" style="text-align: center">
+        <button data-filter="all" class="pure-button pure-button-primary">全部</button>
+    </div>
+</div>
+
+
+<div id="restaurant-template" style="display: none">
+
+    <div class="mix $type restaurant-card pure-u-1 pure-u-md-1-4">
+        <div class="restaurant-inner">
+            <h3 class="restaurant-head">$name</h3>
+            <p class="restaurant-info l-box">$description</p>
+            <a href="menu.html?ID=$ID" class="pure-button pure-button-primary restaurant-order">
+                查看菜单
+            </a>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="restaurant-content container" style="display: none">
+    <div class="pure-g restaurant-container"></div>
+</div>
+
+<div class="footer">
+    <p>
+        &copy; 2017 COLP.
+    </p>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/mixitup.min.js"></script>
+<script>
+    $(function () {
+        $.ajax({
+            url: "Restaurant/Type",
+            method: "GET",
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    $(".restaurant-type-container").append(
+                        '<button data-filter=".' + data[i] + '" class="pure-button">' + data[i] + '</button>'
+                    );
+                }
+                $(".type-content").fadeIn("fast", function () {
+
+                    $.ajax({
+                        url: "Restaurant/List",
+                        method: "GET",
+                        success: function (data) {
+                            for (var i = 0; i < data.length; i++) {
+                                $(".restaurant-container").append(
+                                    $("#restaurant-template").html()
+                                        .replace("$type", data[i].type)
+                                        .replace("$name", data[i].name)
+                                        .replace("$description", data[i].description)
+                                        .replace("$ID", data[i].ID)
+                                );
+                            }
+                            var mixer = mixitup('.restaurant-container', {
+                                "animation": {
+                                    "duration": 250,
+                                    "nudge": true,
+                                    "reverseOut": false,
+                                    "effects": "fade translateZ(-100px)"
+                                }
+                            });
+                            $(".restaurant-content").fadeIn();
+                        }
+                    });
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

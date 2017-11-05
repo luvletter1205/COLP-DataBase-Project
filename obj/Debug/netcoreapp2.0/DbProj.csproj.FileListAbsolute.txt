@@ -1,0 +1,10 @@
+C:\Users\Tonny\RiderProjects\DbProj\bin\Debug\netcoreapp2.0\DbProj.deps.json
+C:\Users\Tonny\RiderProjects\DbProj\bin\Debug\netcoreapp2.0\DbProj.runtimeconfig.json
+C:\Users\Tonny\RiderProjects\DbProj\bin\Debug\netcoreapp2.0\DbProj.runtimeconfig.dev.json
+C:\Users\Tonny\RiderProjects\DbProj\bin\Debug\netcoreapp2.0\DbProj.dll
+C:\Users\Tonny\RiderProjects\DbProj\bin\Debug\netcoreapp2.0\DbProj.pdb
+C:\Users\Tonny\RiderProjects\DbProj\obj\Debug\netcoreapp2.0\DbProj.csproj.CoreCompileInputs.cache
+C:\Users\Tonny\RiderProjects\DbProj\obj\Debug\netcoreapp2.0\DbProj.AssemblyInfoInputs.cache
+C:\Users\Tonny\RiderProjects\DbProj\obj\Debug\netcoreapp2.0\DbProj.AssemblyInfo.cs
+C:\Users\Tonny\RiderProjects\DbProj\obj\Debug\netcoreapp2.0\DbProj.dll
+C:\Users\Tonny\RiderProjects\DbProj\obj\Debug\netcoreapp2.0\DbProj.pdb

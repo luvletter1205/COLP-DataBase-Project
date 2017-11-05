@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Canteen Online Project (COLP)</title>
+    <link rel="stylesheet" href="css/pure-min.css">
+    <link rel="stylesheet" href="css/grids-responsive-min.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <link rel="stylesheet" href="css/user.css">
+</head>
+<body>
+
+<div class="pure-menu pure-menu-horizontal">
+    <a href="#" class="pure-menu-heading">COLP</a>
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item"><a href="index.html" class="pure-menu-link">主页</a></li>
+        <li class="pure-menu-item"><a href="restaurant.html" class="pure-menu-link">餐馆</a></li>
+        <li class="pure-menu-item pure-menu-selected"><a href="user.html" class="pure-menu-link">我的帐号</a></li>
+    </ul>
+</div>
+
+<div class="user-login container" style="display: none">
+    <h2>登录</h2>
+    <form onsubmit="return form_login(this)" class="pure-form l-content login-form">
+        <fieldset class="pure-group">
+            <input name="username" type="text" placeholder="用户名" required maxlength="50">
+            <input name="password" type="password" placeholder="密码" required maxlength="50">
+        </fieldset>
+
+        <button type="submit" class="pure-button pure-button-primary">登录</button>
+        <p>没有账号？点击 <a onclick="show_register(); return false;" href="#">这里</a> 注册账号</p>
+    </form>
+</div>
+
+<div class="user-register container" style="display: none">
+    <h2>登录</h2>
+    <form onsubmit="return form_register(this)" class="pure-form l-content login-form">
+        <fieldset class="pure-group">
+            <input name="username" type="text" placeholder="用户名" required maxlength="50">
+            <input name="password" type="password" placeholder="密码" required maxlength="50">
+            <input name="password-repeat" type="password" placeholder="重复密码" required maxlength="50">
+            <input name="phone" type="text" placeholder="手机号码">
+            <input name="address" type="text" placeholder="送餐地址">
+        </fieldset>
+
+        <button type="submit" class="pure-button pure-button-primary">登录</button>
+        <p>已有账号？点击 <a onclick="show_login(); return false;" href="#">这里</a> 登录账号</p>
+    </form>
+</div>
+
+<div class="user-content container pure-g" style="display: none">
+    <div class="pure-u-1-4">
+        <div class="pure-menu" style="margin: 10px;">
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><a href="#anchor-info" class="pure-menu-link">资料</a></li>
+                <li class="pure-menu-item"><a href="#anchor-order" class="pure-menu-link">订单</a></li>
+                <li class="pure-menu-item"><a onclick="logout(); return false;" href="#" class="pure-menu-link">注销</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="pure-u-3-4">
+        <div class="l-box">
+
+            <h3>个人资料</h3>
+            <a name="anchor-info"></a>
+            <form onsubmit="return form_info_update(this)" class="form-user-info pure-form pure-form-aligned">
+                <fieldset>
+                    <div class="pure-control-group">
+                        <label>用户名</label>
+                        <input name="username" type="text" disabled>
+                    </div>
+                    <div class="pure-control-group">
+                        <label>密码</label>
+                        <input name="password" type="text" required>
+                    </div>
+                    <div class="pure-control-group">
+                        <label>手机号码</label>
+                        <input name="phone" type="text">
+                    </div>
+                    <div class="pure-control-group">
+                        <label>送餐地址</label>
+                        <input name="deliverAddress" type="text">
+                    </div>
+                    <div class="pure-controls">
+                        <button type="submit" class="pure-button pure-button-primary">提交</button>
+                    </div>
+                </fieldset>
+            </form>
+
+            <h3>订单</h3>
+            <a name="anchor-order"></a>
+            <div class="order-container">
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="footer">
+    <p>
+        &copy; 2017 COLP.
+    </p>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script>
+    function show_login() {
+        $(".user-register").fadeOut("fast", function () {
+            $(".user-login").fadeIn();
+        });
+    }
+
+    function show_register() {
+        $(".user-login").fadeOut("fast", function () {
+            $(".user-register").fadeIn();
+        });
+    }
+
+    function form_login(o) {
+        var form = $(o);
+        form.find("button").attr("disabled", "disabled");
+        $.ajax({
+            url: "User/Login",
+            method: "POST",
+            data: form.serialize(),
+            success: function () {
+                $(".user-login").fadeOut("fast", function () {
+                    get_user_info(function () {
+                        $(".user-content").fadeIn();
+                    });
+                });
+            },
+            error: function () {
+                alert("登录失败：用户名或密码错误。");
+            },
+            complete: function () {
+                form.find("button").removeAttr("disabled");
+                form[0].reset();
+            }
+        });
+        return false;
+    }
+
+    function form_register(o) {
+        var form = $(o);
+        if (form.find('input[name="password"]').val() !==
+            form.find('input[name="password-repeat"]').val()) {
+            alert("两次密码输入不一致");
+            return false;
+        }
+        form.find("button").attr("disabled", "disabled");
+
+        $.ajax({
+            url: "User/Register",
+            method: "POST",
+            data: form.serialize(),
+            success: function () {
+                alert("注册成功！");
+                $(".user-register").fadeOut("fast", function () {
+                    $(".user-login").fadeIn();
+                });
+            },
+            error: function () {
+                alert("注册失败：请检查您的输入。");
+            },
+            complete: function () {
+                form.find("button").removeAttr("disabled");
+                form[0].reset();
+            }
+        });
+        return false;
+    }
+
+    function logout() {
+        $.get("User/Logout", function () {
+            $(".user-content").fadeOut("fast", function () {
+                $(".user-login").fadeIn();
+                $(".form-user-info")[0].reset();
+            });
+        });
+    }
+
+    function get_user_info(callback) {
+        $.get("User/Info", function (data) {
+            var form = $(".form-user-info");
+            form.find('input[name="username"]').val(data.username);
+            form.find('input[name="password"]').val(data.password);
+            form.find('input[name="phone"]').val(data.phone);
+            form.find('input[name="deliverAddress"]').val(data.deliverAddress);
+            $.get("Order/List", function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    $(".order-container").append(
+                        ('<div class="order-card">\n' +
+                            '<a href="#" data-id="$id" onclick="return show_order_content(this)">' +
+                            '<p><strong>餐馆</strong> $restaurant <br>' +
+                            '<strong>时间</strong> $datetime <br><strong>金额</strong> ￥$amount</p></a>' +
+                            '</div>')
+                            .replace("$id", data[i].ID)
+                            .replace("$restaurant", data[i].name)
+                            .replace("$datetime", data[i].datetime)
+                            .replace("$amount", data[i].amount)
+                    );
+                }
+                callback();
+            });
+        })
+    }
+
+    function show_order_content(o) {
+        var obj = $(o);
+        if (obj.find("ul").length === 1) return false;
+        $.get("Order/Content/" + obj.data("id"), function (data) {
+            var html = '<p><strong>内容</strong></p><ul>';
+            for (var i = 0; i < data.length; i++) {
+                html += 
+                    '<li>$name <i>￥$price</i> * $quantity</li>'
+                        .replace("$name", data[i].name)
+                        .replace("$price", data[i].price)
+                        .replace("$quantity", data[i].quantity);
+            }
+            obj.append(html + '</ul>');
+        });
+        return false;
+    }
+
+    function form_info_update(o) {
+        var form = $(o);
+        form.find("button").attr("disabled", "disabled");
+        $.ajax({
+            url: "User/Update",
+            method: "POST",
+            data: form.serialize(),
+            success: function () {
+                alert("个人资料更新成功！");
+            },
+            error: function () {
+                alert("更新失败");
+            },
+            complete: function () {
+                form.find("button").removeAttr("disabled");
+            }
+        });
+        return false;
+    }
+
+    $(function () {
+        $.ajax({
+            url: "User/CheckLogin",
+            method: "GET",
+            success: function () {
+                get_user_info(function () {
+                    $(".user-content").fadeIn();
+                });
+            },
+            error: function () {
+                $(".user-login").fadeIn();
+            }
+        });
+    });
+
+</script>
+</body>
+</html>

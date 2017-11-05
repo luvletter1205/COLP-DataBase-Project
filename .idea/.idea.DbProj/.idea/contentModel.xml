@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\Tonny\.Rider2017.2\system\resharper-host\local\Transient\ReSharperHost\v10\SolutionCaches\_DbProj.139065527.00" t="ExcludeRecursive" />
+    <e p="C:\Users\Tonny\RiderProjects\DbProj" t="IncludeRecursive">
+      <e p="appsettings.Development.json" t="Include" />
+      <e p="appsettings.json" t="Include" />
+      <e p="bin" t="ExcludeRecursive" />
+      <e p="Controllers" t="Include">
+        <e p="AdminController.cs" t="Include" />
+        <e p="CommentController.cs" t="Include" />
+        <e p="OrderController.cs" t="Include" />
+        <e p="RestaurantController.cs" t="Include" />
+        <e p="UserController.cs" t="Include" />
+      </e>
+      <e p="DbProj.csproj" t="IncludeRecursive" />
+      <e p="DbProj.sln" t="IncludeFlat" />
+      <e p="obj" t="ExcludeRecursive">
+        <e p="Debug" t="Include">
+          <e p="netcoreapp2.0" t="Include">
+            <e p="DbProj.AssemblyInfo.cs" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Program.cs" t="Include" />
+      <e p="SqlIntergrate.cs" t="Include" />
+      <e p="Startup.cs" t="Include" />
+      <e p="wwwroot" t="Include">
+        <e p="admin.html" t="Include" />
+        <e p="css" t="Include">
+          <e p="basic.css" t="Include" />
+          <e p="grids-responsive-min.css" t="Include" />
+          <e p="home.css" t="Include" />
+          <e p="menu.css" t="Include" />
+          <e p="pure-min.css" t="Include" />
+          <e p="restaurant.css" t="Include" />
+          <e p="user.css" t="Include" />
+        </e>
+        <e p="image" t="Include">
+          <e p="home-background.jpg" t="Include" />
+        </e>
+        <e p="index.html" t="Include" />
+        <e p="js" t="Include">
+          <e p="decimal.min.js" t="Include" />
+          <e p="jquery.min.js" t="Include" />
+          <e p="mixitup.min.js" t="Include" />
+          <e p="Sortable.js" t="Include" />
+        </e>
+        <e p="menu.html" t="Include" />
+        <e p="restaurant.html" t="Include" />
+        <e p="user.html" t="Include" />
+        <e p="vendor.html" t="Include" />
+      </e>
+    </e>
+  </component>
+</project>

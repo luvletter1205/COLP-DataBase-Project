@@ -1,0 +1,45 @@
+.login-form {
+    width: 90%;
+    max-width: 300px;
+}
+
+.login-form input {
+    width: 100%;
+}
+
+.login-form button {
+    width: 100%;
+}
+
+.menu-container {
+    box-shadow: 0 1px 2px gray;
+}
+.menu-container li {
+    background-color: white;
+    padding: 10px;
+}
+
+.menu-content-price {
+    float: right;
+    margin-right: 15px;
+}
+
+.menu-content-action {
+    float: right;
+    margin-top: -7px;
+    margin-right: -7px;
+}
+
+
+.order-card {
+    margin: 15px;
+    background-color: white;
+    box-shadow: 0 1px 2px gray;
+}
+
+.order-card a {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: black;
+}

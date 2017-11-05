@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Canteen Online Project (COLP)</title>
+    <link rel="stylesheet" href="css/pure-min.css">
+    <link rel="stylesheet" href="css/grids-responsive-min.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <link rel="stylesheet" href="css/menu.css">
+</head>
+<body>
+
+<div class="pure-menu pure-menu-horizontal">
+    <a href="#" class="pure-menu-heading">COLP</a>
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item"><a href="index.html" class="pure-menu-link">主页</a></li>
+        <li class="pure-menu-item pure-menu-selected"><a href="restaurant.html" class="pure-menu-link">餐馆</a></li>
+        <li class="pure-menu-item"><a href="user.html" class="pure-menu-link">我的帐号</a></li>
+    </ul>
+</div>
+
+<div class="menu-content container" style="display: none">
+    <div class="pure-g">
+        <div class="pure-u-3-4">
+            <h1 class="menu-name"></h1>
+            <p class="menu-info"></p>
+            <h3>商家菜单</h3>
+            <form class="pure-form">
+                <table class="pure-table menu-table" style="width: 100%">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>菜品名称</th>
+                        <th>价格</th>
+                        <th>数量</th>
+                    </tr>
+                    </thead>
+
+                    <tbody class="menu-container">
+
+                    </tbody>
+                </table>
+
+            </form>
+            <h3>用户评价</h3>
+            <div class="comment-container">
+            </div>
+            <form onsubmit="return add_comment(this)" class="pure-form">
+                <fieldset>
+                    <legend>新建评论</legend>
+                    <input type="text" name="content" placeholder="内容" required maxlength="100">
+                    <button type="submit" class="pure-button pure-button-primary">提交</button>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="pure-u-1-4">
+            <div class="l-box">
+                <h1>结算</h1>
+                <p>当前订单总价</p>
+                <h3 class="order-price"></h3>
+                <p>您的送餐地址</p>
+                <h3 class="deliver-address"></h3>
+                <p>订单预计在半小时后送达</p>
+                <button onclick="generate_order(this)" class="pure-button pure-button-primary">提交订单</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>
+        &copy; 2017 COLP.
+    </p>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/decimal.min.js"></script>
+</body>
+</html>
+
+
+<script>
+
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    $(function () {
+        var id = getParameterByName("ID");
+        $.ajax({
+            url: "User/CheckLogin",
+            method: "GET",
+            success: function () {
+                $.get("User/Info", function (data) {
+                    if (data.deliverAddress === "") {
+                        alert("您需要先填写您的送餐地址以提交订单");
+                        window.location.href = "user.html";
+                    }
+                    $(".deliver-address").html(data.deliverAddress);
+                });
+                $.get("Order/RestaurantInfo/" + id, function (data) {
+                    $(".menu-name").html(data.name);
+                    $(".menu-info").html(data.description);
+
+                });
+                $.get("Order/Menu/" + id, function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $(".menu-container").append(
+                            ('<tr data-id="$id" data-price="$price">\n' +
+                                '        <td>$index</td>\n' +
+                                '        <td><abbr title="$description">$name</abbr></td>\n' +
+                                '        <td>￥$price</td>\n' +
+                                '        <td>\n' +
+                                '            <a onclick="remove_quantity(this)" class="pure-button">-</a>\n' +
+                                '            <input type="text" disabled value="0">\n' +
+                                '            <a onclick="add_quantity(this)" class="pure-button">+</a>\n' +
+                                '        </td>\n' +
+                                '    </tr>')
+                                .replace("$index", (i + 1).toString())
+                                .replace("$name", data[i].name)
+                                .replace("$description", data[i].description)
+                                .replace("$price", data[i].price)
+                                .replace("$price", data[i].price)
+                                .replace("$id", data[i].ID)
+                        );
+                    }
+                    update_total_price();
+                });
+                $.get("Comment/List/" + id, function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $(".comment-container").append(
+                            ('<div class="comment-card">\n' +
+                            '     <strong>$username</strong>在$datetime评论\n' +
+                            '     <p>$content</p>\n' +
+                            '</div>')
+                                .replace("$username", data[i].username)
+                                .replace("$datetime", data[i].datetime)
+                                .replace("$content", data[i].content)
+                        );
+                    }
+                })
+                setTimeout(function () {
+                    $(".menu-content").fadeIn();
+                }, 400);
+            },
+            error: function () {
+                alert("您需要先登录以查看菜单");
+                window.location.href = "user.html";
+            }
+        });
+    });
+
+    var total_price;
+
+    function update_total_price() {
+        total_price = new Decimal(0);
+        $(".menu-container > tr").each(function (index, element) {
+            var e = $(element);
+            var price = new Decimal(e.data("price"));
+            var quantity = new Decimal(parseInt(e.find("input").val()));
+            total_price = total_price.plus(price.times(quantity));
+        });
+        $(".order-price").html("￥" + total_price);
+    }
+
+    function add_quantity(o) {
+        var obj = $(o);
+        var quantity = parseInt(obj.parent().find("input").val());
+        if (quantity === 99) return;
+        obj.parent().find("input").val(quantity + 1);
+        update_total_price();
+    }
+
+    function remove_quantity(o) {
+        var obj = $(o);
+        var quantity = parseInt(obj.parent().find("input").val());
+        if (quantity === 0) return;
+        obj.parent().find("input").val(quantity - 1);
+        update_total_price();
+    }
+    
+    function generate_order(o) {
+        $(o).attr("disabled", "disabled");
+        var batch = {};
+        batch.total = total_price.toString();
+        batch.rid = getParameterByName("ID");
+        batch.list = [];
+        $(".menu-container > tr").each(function (index, element) {
+            var e = $(element);
+            if (parseInt(e.find("input").val()) !== 0) {
+                batch.list.push({
+                    id: e.data("id"),
+                    quantity: parseInt(e.find("input").val())
+                });
+            }
+        });
+        $.ajax({
+            url: "Order/Submit",
+            method: "POST",
+            data: {batch : JSON.stringify(batch)},
+            success: function () {
+                alert("订单提交成功");
+                window.location.href = "user.html";
+            },
+            error: function () {
+                alert("订单提交失败");
+                $(o).removeAttr("disabled");
+            }
+        });
+        
+    }
+    
+    function add_comment(o) {
+        var form = $(o);
+        form.find("button").attr("disabled", "disabled");
+        $.ajax({
+            url: "Comment/Add/" + getParameterByName("ID"),
+            method: "POST",
+            data: form.serialize(),
+            success: function () {
+                alert("评论提交成功");
+                form[0].reset();
+            },
+            error: function () {
+                alert("评论提交失败");
+            },
+            complete: function () {
+                form.find("button").removeAttr("disabled");
+            }
+        });
+        return false;
+    }
+</script>

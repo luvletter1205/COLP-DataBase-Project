@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Canteen Online Project (COLP)</title>
+    <link rel="stylesheet" href="css/pure-min.css">
+    <link rel="stylesheet" href="css/grids-responsive-min.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <link rel="stylesheet" href="css/user.css">
+</head>
+<body>
+
+<div class="pure-menu pure-menu-horizontal">
+    <a href="#" class="pure-menu-heading">COLP</a>
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item"><a href="index.html" class="pure-menu-link">主页</a></li>
+        <li class="pure-menu-item"><a href="restaurant.html" class="pure-menu-link">餐馆</a></li>
+        <li class="pure-menu-item pure-menu-selected"><a href="user.html" class="pure-menu-link">我的帐号</a></li>
+    </ul>
+</div>
+
+<div class="user-login container" style="display: none">
+    <h2>登录（餐饮商家）</h2>
+    <form onsubmit="return form_login(this)" class="pure-form l-content login-form">
+        <fieldset class="pure-group">
+            <input name="username" type="text" placeholder="用户名" required maxlength="50">
+            <input name="password" type="password" placeholder="密码" required maxlength="50">
+        </fieldset>
+
+        <button type="submit" class="pure-button pure-button-primary">登录</button>
+    </form>
+</div>
+
+<div class="user-content container pure-g" style="display: none">
+    <div class="pure-u-1-4">
+        <div class="pure-menu" style="margin: 10px;">
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><a href="#anchor-info" class="pure-menu-link">资料</a></li>
+                <li class="pure-menu-item"><a href="#anchor-menu" class="pure-menu-link">菜单</a></li>
+                <li class="pure-menu-item"><a href="#anchor-order" class="pure-menu-link">订单</a></li>
+                <li class="pure-menu-item"><a onclick="logout(); return false;" href="#" class="pure-menu-link">注销</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="pure-u-3-4">
+        <div class="l-box">
+
+            <h3>资料</h3>
+            <a name="anchor-info"></a>
+            <form onsubmit="return form_info_update(this)" class="form-user-info pure-form pure-form-aligned">
+                <fieldset>
+                    <div class="pure-control-group">
+                        <label>商家名称</label>
+                        <input name="name" type="text" disabled>
+                    </div>
+                    <div class="pure-control-group">
+                        <label>用户名</label>
+                        <input name="username" type="text" disabled>
+                    </div>
+                    <div class="pure-control-group">
+                        <label>密码</label>
+                        <input name="password" type="text" required maxlength="50">
+                    </div>
+                    <div class="pure-control-group">
+                        <label>描述</label>
+                        <input name="description" type="text" required>
+                    </div>
+                    <div class="pure-control-group">
+                        <label>类型</label>
+                        <input name="type" type="text" required>
+                    </div>
+                    <div class="pure-controls">
+                        <button type="submit" class="pure-button pure-button-primary">提交</button>
+                    </div>
+                </fieldset>
+            </form>
+
+            <h3>菜单</h3>
+            <a name="anchor-menu"></a>
+            <form onsubmit="return form_add_menu(this)" class="form-add-menu pure-form">
+                <fieldset>
+                    <legend>新建菜品</legend>
+                    <input name="name" type="text" placeholder="名称">
+                    <input name="description" type="text" placeholder="描述">
+                    <input name="price" type="text" placeholder="价格">
+                    <button type="submit" class="pure-button pure-button-primary">新增</button>
+                </fieldset>
+            </form>
+            <ul class="menu-container pure-menu-list"></ul>
+            <p><button type="button" onclick="update_menu(this)" class="pure-button pure-button-primary">保存更改</button></p>
+            
+            <h3>订单</h3>
+            <a name="anchor-order"></a>
+            <div class="order-container">
+
+            </div>
+            
+        </div>
+
+    </div>
+</div>
+
+<div class="footer">
+    <p>
+        &copy; 2017 COLP.
+    </p>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/Sortable.js"></script>
+<script>
+    function form_login(o) {
+        var form = $(o);
+        form.find("button").attr("disabled", "disabled");
+        $.ajax({
+            url: "Restaurant/Login",
+            method: "POST",
+            data: form.serialize(),
+            success: function () {
+                $(".user-login").fadeOut("fast", function () {
+                    get_user_info(function () {
+                        $(".user-content").fadeIn();
+                    });
+                });
+            },
+            error: function () {
+                alert("登录失败：用户名或密码错误。");
+            },
+            complete: function () {
+                form.find("button").removeAttr("disabled");
+                form[0].reset();
+            }
+        });
+        return false;
+    }
+
+    function logout() {
+        $.get("Restaurant/Logout", function () {
+            $(".user-content").fadeOut("fast", function () {
+                $(".user-login").fadeIn();
+                $(".form-user-info")[0].reset();
+            });
+        });
+    }
+    
+    function get_user_info(callback) {
+        $.get("Restaurant/Info", function (data) {
+            var form = $(".form-user-info");
+            form.find('input[name="name"]').val(data.name);
+            form.find('input[name="username"]').val(data.username);
+            form.find('input[name="password"]').val(data.password);
+            form.find('input[name="description"]').val(data.d);
+            form.find('input[name="type"]').val(data.t);
+            $.get("Restaurant/Menu", function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    add_menu(data[i].name, data[i].description, data[i].price);
+                }
+
+                Sortable.create(document.getElementsByClassName('menu-container')[0]);
+                $.get("Restaurant/OrderList", function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $(".order-container").append(
+                            ('<div class="order-card">\n' +
+                                '<a href="#" data-id="$id" onclick="return show_order_content(this)">' +
+                                '<p><strong>送餐地址</strong> $deliverAddress <br>' +
+                                '<strong>时间</strong> $datetime <br><strong>金额</strong> ￥$amount</p></a>' +
+                                '</div>')
+                                .replace("$id", data[i].ID)
+                                .replace("$deliverAddress", data[i].deliverAddress)
+                                .replace("$datetime", data[i].datetime)
+                                .replace("$amount", data[i].amount)
+                        );
+                    }
+                    callback();
+                });
+            });
+        })
+    }
+    
+    function form_info_update(o) {
+        var form = $(o);
+        form.find("button").attr("disabled", "disabled");
+        $.ajax({
+            url: "Restaurant/Update",
+            method: "POST",
+            data: form.serialize(),
+            success: function () {
+                alert("商家资料更新成功！");
+            },
+            error: function () {
+                alert("更新失败");
+            },
+            complete: function () {
+                form.find("button").removeAttr("disabled");
+            }
+        });
+        return false;
+    }
+    
+    function add_menu(name, description, price) {
+        $(".menu-container").append(
+            '<li class="pure-menu-item">' +
+            '     <strong class="menu-content-name">' + name + '</strong>' + 
+            '     <span class="menu-content-description">' + description+ '</span>' + 
+            '     <div class="menu-content-action pure-button-group" role="group">' +
+            '          <button onclick="delete_menu_item(this)" class="pure-button button-small">删除</button>' +
+            '          <button onclick="edit_menu_item(this)" class="pure-button button-small">修改</button>' +
+            '     </div>' +
+            '     <span class="menu-content-price">￥' + price + '</span>' +
+            '</li>');
+        
+    }
+    
+    function delete_menu_item(o) {
+        var menu = $(o).parent().parent();
+        menu.remove();
+    }
+    
+    var current_edit_item;
+    function edit_menu_item(o) {
+        var menu = $(o).parent().parent();
+        current_edit_item = menu;
+        var form = $(".form-add-menu");
+        var item = {
+            name : menu.find(".menu-content-name").html(),
+            description : menu.find(".menu-content-description").html(),
+            price : menu.find(".menu-content-price").html().replace("￥", "")
+        };
+        form.find('input[name="name"]').val(item.name);
+        form.find('input[name="description"]').val(item.description);
+        form.find('input[name="price"]').val(item.price);
+        
+        form.find("button").removeClass("pure-button-primary");
+        form.find("button").addClass("button-success");
+        form.find("button").html("修改");
+        
+        $(".menu-container").find("button").attr("disabled", "disabled");
+    }
+    
+    function form_add_menu(o) {
+        var form = $(o);
+        if (current_edit_item) {
+            var menu = current_edit_item;
+            menu.find(".menu-content-name").html(form.find('input[name="name"]').val());
+            menu.find(".menu-content-description").html(form.find('input[name="description"]').val());
+            menu.find(".menu-content-price").html("￥" + form.find('input[name="price"]').val());
+            
+            form.find("button").removeClass("button-success");
+            form.find("button").addClass("pure-button-primary");
+            form.find("button").html("新增");
+
+            $(".menu-container").find("button").removeAttr("disabled");
+            current_edit_item = null;
+        } else {
+            add_menu(
+                form.find('input[name="name"]').val(),
+                form.find('input[name="description"]').val(),
+                form.find('input[name="price"]').val());
+        }
+        form[0].reset();
+        return false;
+    }
+    
+    function update_menu(o) {
+        var menu = [];
+        $(".menu-container>li").each(function (index, element) {
+            menu.push({
+                order: index + 1,
+                name : $(element).find(".menu-content-name").html(),
+                description : $(element).find(".menu-content-description").html(),
+                price : $(element).find(".menu-content-price").html().replace("￥", "")
+            })
+        });
+        $(o).attr("disabled", "disabled");
+        $.ajax({
+            url: "Restaurant/UpdateMenu",
+            method: "POST",
+            data: { batch : JSON.stringify(menu) },
+            success: function () {
+                alert("菜单更新成功！");
+            },
+            error: function () {
+                alert("菜单更新失败");
+            },
+            complete: function () {
+                $(o).removeAttr("disabled");
+            }
+        });
+    }
+
+    function show_order_content(o) {
+        var obj = $(o);
+        if (obj.find("ul").length === 1) return false;
+        $.get("Restaurant/OrderContent/" + obj.data("id"), function (data) {
+            var html = '<p><strong>内容</strong></p><ul>';
+            for (var i = 0; i < data.length; i++) {
+                html +=
+                    '<li>$name <i>￥$price</i> * $quantity</li>'
+                        .replace("$name", data[i].name)
+                        .replace("$price", data[i].price)
+                        .replace("$quantity", data[i].quantity);
+            }
+            obj.append(html + '</ul>');
+        });
+        return false;
+    }
+
+
+    $(function () {
+        $.ajax({
+            url: "Restaurant/CheckLogin",
+            method: "GET",
+            success: function () {
+                get_user_info(function () {
+                    $(".user-content").fadeIn();    
+                });
+            },
+            error: function () {
+                $(".user-login").fadeIn();
+            }
+        });
+    });
+
+</script>
+</body>
+</html>

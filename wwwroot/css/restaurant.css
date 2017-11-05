@@ -1,0 +1,29 @@
+
+.restaurant-card {
+    box-sizing: border-box;
+    border: 5px transparent;
+    padding: 5px;
+
+}
+
+.restaurant-inner {
+    padding: 5px;
+    border-top: 5px solid #129FEA;
+    background-color: white;
+}
+
+.restaurant-head {
+    text-align: center;
+}
+
+.restaurant-info {
+    font-size: 0.8em;
+}
+
+.restaurant-order {
+    display: block;
+}
+
+.restaurant-type-container > button.mixitup-control-active {
+    border-bottom: 3px solid #129FEA;
+}

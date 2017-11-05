@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Canteen Online Project (COLP)</title>
+    <link rel="stylesheet" href="css/pure-min.css">
+    <link rel="stylesheet" href="css/grids-responsive-min.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <link rel="stylesheet" href="css/user.css">
+</head>
+<body>
+
+<div class="pure-menu pure-menu-horizontal">
+    <a href="#" class="pure-menu-heading">COLP</a>
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item"><a href="index.html" class="pure-menu-link">主页</a></li>
+        <li class="pure-menu-item"><a href="restaurant.html" class="pure-menu-link">餐馆</a></li>
+        <li class="pure-menu-item"><a href="user.html" class="pure-menu-link">我的帐号</a></li>
+    </ul>
+</div>
+
+<div class="admin-login container" style="display: none">
+    <h2>登录COLP管理后台</h2>
+    <form onsubmit="return form_admin_login(this)" class="pure-form l-content login-form">
+        <fieldset class="pure-group">
+            <input name="username" type="text" placeholder="用户名" required maxlength="50">
+            <input name="password" type="password" placeholder="密码" required maxlength="50">
+        </fieldset>
+        <button type="submit" class="pure-button pure-button-primary">登录</button>
+    </form>
+</div>
+
+<div class="admin-content container pure-g" style="display: none">
+    <div class="pure-u-1-4">
+        <div class="pure-menu" style="margin: 10px;">
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><a href="#" class="pure-menu-link">商家进驻</a></li>
+                <li class="pure-menu-item"><a href="#" onclick="logout(); return false;" class="pure-menu-link">注销</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="pure-u-3-4">
+        <div class="l-box">
+
+            <h3>商家进驻</h3>
+            <form onsubmit="return form_enter(this)" class="pure-form pure-form-aligned">
+                <fieldset>
+                    <div class="pure-control-group">
+                        <label for="name">商家名称</label>
+                        <input name="name" id="name" type="text" required maxlength="50">
+                    </div>
+                    <div class="pure-control-group">
+                        <label for="username">用户名</label>
+                        <input name="username" id="username" type="text" required maxlength="50">
+                    </div>
+                    <div class="pure-controls">
+                        <button type="submit" class="pure-button pure-button-primary">提交</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<div class="footer">
+    <p>
+        &copy; 2017 COLP.
+    </p>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script>
+    function form_admin_login(o) {
+        var form = $(o);
+        form.find("button").attr("disabled", "disabled");
+        $.ajax({
+            url: "Admin/Login",
+            method: "POST",
+            data: form.serialize(),
+            success: function () {
+                $(".admin-login").fadeOut("fast", function () {
+                    $(".admin-content").fadeIn();
+                });
+            },
+            error: function () {
+                alert("登录失败：用户名或密码错误。");
+            },
+            complete: function () {
+                form.find("button").removeAttr("disabled");
+            }
+        });
+        return false;
+    }
+    
+    function form_enter(o) {
+        var form = $(o);
+        form.find("button").attr("disabled", "disabled");
+        $.ajax({
+            url: "Admin/AddRestaurant",
+            method: "POST",
+            data: form.serialize(),
+            success: function (data) {
+                alert("商家进驻成功：其初始密码是" + data.password);
+            },
+            error: function () {
+                alert("商家进驻失败：请检查名称或用户名是否存在重复");
+            },
+            complete: function () {
+                form.find("button").removeAttr("disabled");
+            }
+        });
+        return false;
+    }
+
+    
+    $(function () {
+        $.ajax({
+            url: "Admin/CheckLogin",
+            method: "GET",
+            success: function () {
+                $(".admin-content").fadeIn();
+            },
+            error: function () {
+                $(".admin-login").fadeIn();
+            }
+        });
+    });
+    
+    function logout() {
+        $.get("Admin/Logout", function () {
+            $(".admin-content").fadeOut("fast", function () {
+                $(".admin-login").fadeIn();
+            });
+        });
+    }
+</script>
+</body>
+</html>
