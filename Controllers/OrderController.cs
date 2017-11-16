@@ -83,12 +83,12 @@ namespace DbProj.Controllers
             
             var paras = new List<SqlParameter>();
             var command = "DECLARE @oid BIGINT;" +
-                          "INSERT INTO [Order] ([RID], [UID], [amount]) " +
-                          "VALUES (@m1, (SELECT [ID] FROM [User] WHERE [username]=@m2), @m3) " +
+                          "INSERT INTO [Order] ([RID], [UID]) " +
+                          "VALUES (@m1, (SELECT [ID] FROM [User] WHERE [username]=@m2)) " +
                           "SELECT @oid=@@IDENTITY;";
             paras.Add(new SqlParameter("@m1", SqlDbType.BigInt) {Value = order.rid});
             paras.Add(new SqlParameter("@m2", SqlDbType.VarChar) {Value = HttpContext.Session.GetString("user")});
-            paras.Add(new SqlParameter("@m3", SqlDbType.Decimal) {Value = order.total});
+            //paras.Add(new SqlParameter("@m3", SqlDbType.Decimal) {Value = order.total});
 
             for (var i = 0; i < order.list.Count; i++)
             {

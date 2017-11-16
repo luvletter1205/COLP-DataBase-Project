@@ -29,7 +29,7 @@ namespace DbProj.Controllers
             var username = HttpContext.Request.Form["username"];
             var password = HttpContext.Request.Form["password"];
 
-            if (username == "tonny" && password == "824673915")
+            if (username == "admin" && password == "admin")
             {
                 HttpContext.Session.SetString("admin", "tonny");
                 return Ok();
@@ -70,7 +70,7 @@ namespace DbProj.Controllers
             si.AddParameter("@p1", SqlIntegrate.DataType.NVarChar, name);
             si.AddParameter("@p2", SqlIntegrate.DataType.VarChar, username);
             si.AddParameter("@p3", SqlIntegrate.DataType.VarChar, password);
-            var result = si.Execute("INSERT INTO [Restaurant] ([name], [username], [password]) VALUES (@p1, @p2, @p3)");
+            var result = si.Execute("EXECUTE RestaurantRegister @p1, @p2, @p3");
             
             if (result == 1)
             {

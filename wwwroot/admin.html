@@ -15,13 +15,11 @@
     <a href="#" class="pure-menu-heading">COLP</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item"><a href="index.html" class="pure-menu-link">主页</a></li>
-        <li class="pure-menu-item"><a href="restaurant.html" class="pure-menu-link">餐馆</a></li>
-        <li class="pure-menu-item"><a href="user.html" class="pure-menu-link">我的帐号</a></li>
     </ul>
 </div>
 
 <div class="admin-login container" style="display: none">
-    <h2>登录COLP管理后台</h2>
+    <h2>管理员登录</h2>
     <form onsubmit="return form_admin_login(this)" class="pure-form l-content login-form">
         <fieldset class="pure-group">
             <input name="username" type="text" placeholder="用户名" required maxlength="50">
@@ -36,7 +34,8 @@
         <div class="pure-menu" style="margin: 10px;">
             <ul class="pure-menu-list">
                 <li class="pure-menu-item"><a href="#" class="pure-menu-link">商家进驻</a></li>
-                <li class="pure-menu-item"><a href="#" onclick="logout(); return false;" class="pure-menu-link">注销</a></li>
+                <li class="pure-menu-item"><a href="#" onclick="logout(); return false;" class="pure-menu-link">注销</a>
+                </li>
             </ul>
         </div>
     </div>
@@ -94,7 +93,7 @@
         });
         return false;
     }
-    
+
     function form_enter(o) {
         var form = $(o);
         form.find("button").attr("disabled", "disabled");
@@ -115,7 +114,7 @@
         return false;
     }
 
-    
+
     $(function () {
         $.ajax({
             url: "Admin/CheckLogin",
@@ -128,7 +127,7 @@
             }
         });
     });
-    
+
     function logout() {
         $.get("Admin/Logout", function () {
             $(".admin-content").fadeOut("fast", function () {

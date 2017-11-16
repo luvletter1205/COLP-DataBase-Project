@@ -71,12 +71,12 @@ namespace DbProj.Controllers
             if (phone == null) phone = "";
             if (deliverAddress == null) deliverAddress = "";
             var si = new SqlIntegrate();
-            si.AddParameter("@p1", SqlIntegrate.DataType.VarChar, password);
-            si.AddParameter("@p2", SqlIntegrate.DataType.VarChar, phone);
+            si.AddParameter("@p1", SqlIntegrate.DataType.VarChar, HttpContext.Session.GetString("user"));
+            si.AddParameter("@p2", SqlIntegrate.DataType.VarChar, password);
             si.AddParameter("@p3", SqlIntegrate.DataType.NVarChar, deliverAddress);
-            si.AddParameter("@p4", SqlIntegrate.DataType.VarChar, HttpContext.Session.GetString("user"));
+            si.AddParameter("@p4", SqlIntegrate.DataType.VarChar, phone);
             var result =
-                si.Execute("UPDATE [User] SET [password]=@p1, [phone]=@p2, [deliverAddress]=@p3 WHERE [username]=@p4");
+                si.Execute("EXECUTE UserUpdate @p1, @p2, @p3, @p4");
             if (result == 1) return Ok();
             return NotFound();
         }
@@ -87,29 +87,22 @@ namespace DbProj.Controllers
             var si = new SqlIntegrate();
             si.AddParameter("@p1", SqlIntegrate.DataType.VarChar, username);
             si.AddParameter("@p2", SqlIntegrate.DataType.VarChar, password);
-
-            var cmd = "INSERT INTO [User] ([username], [password]) VALUES (@p1, @p2);";
-            if (phone != null)
-            {
-                si.AddParameter("@p3", SqlIntegrate.DataType.VarChar, phone);
-                cmd += "UPDATE [User] SET [phone]=@p3 WHERE [username]=@p1;";
-            }
             if (address != null)
-            {
-                si.AddParameter("@p4", SqlIntegrate.DataType.VarChar, address);
-                cmd += "UPDATE [User] SET [deliverAddress]=@p4 WHERE [username]=@p1;";
-            }
-
+                si.AddParameter("@p3", SqlIntegrate.DataType.NVarChar, address);
+            if (phone != null)
+                si.AddParameter("@p4", SqlIntegrate.DataType.VarChar, phone);
             int result;
             try
             {
-                result = si.Execute(cmd);
+                result = si.Execute("EXECUTE UserRegister @p1, @p2" 
+                                    + (address != null ? " ,@p3" : " ,NULL") 
+                                    + (phone   != null ? " ,@p4" : " ,NULL"));
             }
             catch
             {
                 return NotFound();
             }
-            if (result >= 1)
+            if (result == 1)
             {
                 return Ok();
             }
